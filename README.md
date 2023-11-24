@@ -1,2 +1,2 @@
 # traffic-info-systems-sim
-Simulation environment on SUMO simulator to evaluate information percolation systems for traffic congestion avoidance
+Simulation environment on MESA simulator to evaluate information percolation systems for traffic congestion avoidance
