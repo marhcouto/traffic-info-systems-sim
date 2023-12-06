@@ -13,4 +13,5 @@ class CarAgent(Agent):
 
     def step(self):
         # Move the agent
+        print("I am moving!")
         self.model.grid.move_agent(self, (self.pos[0] + self.speed, self.pos[1] + self.speed))

@@ -8,7 +8,7 @@ def agent_portrayal(agent):
     return portrayal
 
 
-grid = CanvasGrid(agent_portrayal, 100, 100, 500, 500)
+grid = CanvasGrid(agent_portrayal, 20, 20, 500, 500)
 server = ModularServer(NetworkModel, [grid], "Network Model", {"N":10, "width": 100, "height": 100})
 server.port = 8521 # The default
 server.launch()
