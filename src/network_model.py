@@ -16,7 +16,7 @@ class NetworkModel(Model):
         self.num_agents = N
         self.grid = MultiGrid(width, height, True)
         self.running = True
-        self.road : Road = Road(1, Position(0, 0), Position(13, 4))
+        self.road : Road = Road(1, Position(0, 0), Position(17, 4))
         self.road.build_road()
 
         # Create scheduler and assign it to the model

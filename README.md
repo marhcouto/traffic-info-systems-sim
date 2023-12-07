@@ -19,6 +19,11 @@ Install matplotlib:
 pip install matplotlib
 ```
 
+(Only to run tests) Install pytest:
+```sh
+pip install pytest
+```
+
 Alternatively you can use ```pip install -r requirements.txt``` in the root folder of this project. This will install all packages included in a base conda environment used for the development of the project.
 
 ## Usage

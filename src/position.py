@@ -33,6 +33,14 @@ class Position:
     def y(self, value : int):
         self._y : int = value
 
+
+    #!
+    # \brief Returns a list of adjacent positions.
+    # \return A list of adjacent positions.
+    def adjacent(self) -> list:
+        return [Position(self._x - 1, self._y), Position(self._x + 1, self._y), Position(self._x, self._y - 1), Position(self._x, self._y + 1),
+                Position(self._x - 1, self._y - 1), Position(self._x + 1, self._y + 1), Position(self._x - 1, self._y + 1), Position(self._x + 1, self._y - 1)]
+
     #!
     # \brief Calculates the distance between two positions.
     # \param other The other position.
@@ -62,3 +70,4 @@ class Position:
     # \brief Sums vector other to position self.
     def __add__(self, other):
         return Position(self._x + other._x, self._y + other._y)
+    
