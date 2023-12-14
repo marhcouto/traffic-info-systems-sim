@@ -47,6 +47,13 @@ class Position:
     # \return The euclidian distance between the two positions.
     def dist(self, other) -> float:
         return math.sqrt((self._x - other._x) ** 2 + (self._y - other._y) ** 2)
+    
+    #!
+    # \brief Checks if the position is not in first quadrant.
+    # \return True if the position is not in first quadrant,
+    # False otherwise.
+    def is_negative(self) -> bool:
+        return self._x < 0 or self._y < 0
 
     
     def __eq__(self, other) -> bool:

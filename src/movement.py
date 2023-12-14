@@ -2,6 +2,8 @@ import copy
 
 from position import Position
 
+## DEPRECATED
+
 #!
 # \file movement.py
 # \brief A class representing a movement, used to decide the next positions.
