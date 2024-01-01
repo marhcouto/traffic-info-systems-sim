@@ -9,21 +9,6 @@ from model.network_model import NetworkModel
 from road_space_agent import RoadSpaceAgent
 from car_agent import CarAgent
 
-#!
-# \file server.py
-# \brief Function that defines the visual
-#of the agents.
-# \param agent The agent to be portrayed.
-# \return The portrayal of the agent (dict).
-def agent_portrayal(agent : Agent):
-    if type(agent) == RoadSpaceAgent:
-        portrayal : dict = {"Shape": "rect", "Filled": "true", "Layer": 0, "Color": "gray", "w": 1, "h": 1}
-    elif type(agent) == CarAgent:
-        portrayal : dict = {"Shape": "circle", "Filled": "true", "Layer": 1, "Color": "blue", "r": 0.5}
-    else:
-        portrayal : dict = {"Shape": "circle", "Filled": "true", "Layer": 1, "Color": "red", "r": 0.5}
-    return portrayal
-
 def network_portrayal(G):
     # The model ensures there is always 1 agent per node
 
@@ -40,6 +25,7 @@ def network_portrayal(G):
     portrayal['nodes'] = [{'size': 6,
                            'color': "#e8e8e8",
                            'tooltip': "Node",
+                           'id': node.id,
                            }
                           for node in G.nodes]
 
@@ -78,10 +64,10 @@ chart = ChartModule([{'Label': 'Highly Congested', 'Color': '#FF0000'},
 
 
 server : ModularServer = ModularServer(NetworkModel, [network], "Network Model", model_params)
-server.port : int = 8523 # The default
+server.port : int = 8524 # The default
 server.launch()
 
 
-nx.draw(NetworkModel)
+#nx.draw(NetworkModel)
 
 #def show_graph(NetworkModel):

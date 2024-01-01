@@ -48,7 +48,9 @@ class NetworkModel(Model):
     def create_graph(self, roads):
         G = nx.Graph()
         i = 1
+        G.add_node(Node("a"))
         for road in roads:
+            print("estou aqui")
             G.add_edge(road._start_point, road._end_point, id=i, capacity=road.capacity)
             i += 1
         return G
