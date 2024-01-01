@@ -47,12 +47,12 @@ class NetworkModel(Model):
 
     #!
     # \brief Creates the roads of the network.
-    def create_road(self, start_point : Node, end_point : Node, no_lanes : int, inflection_points : list[Node] = []):
-        self.roads.append(Road(no_lanes, start_point, end_point, inflection_points))
+    def create_road(self, start_point : Node, end_point : Node, no_lanes : int):
+        self.roads.append(Road(no_lanes, start_point, end_point))
 
     #create a node and place it on the grid
-    def create_node(self, id : int, type : int, position : Position):
-        self.node = Node(id, type, position)
+    def create_node(self, id : int, position : Position):
+        self.node = Node(id, position)
 
 
     #!

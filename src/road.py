@@ -14,12 +14,11 @@ class Road:
     # \param start_point The starting point of the road.
     # \param end_point The end point of the road.
     # \param inflection_points A list of inflection points on the road.
-    def __init__(self, no_lanes : int, start_point : Node, end_point : Node, inflection_points : list[Node] = []):
+    def __init__(self, no_lanes : int, start_point : Node, end_point : Node):
         
         self._start_point : Node = start_point
         self._end_point : Node = end_point
         self._no_lanes : int = no_lanes
-        self._inflection_points : list[Node] = inflection_points
 
         
         
