@@ -6,9 +6,9 @@ import networkx as nx
 
 from car_agent import CarAgent
 from road_space_agent import RoadSpaceAgent
-from road import Road
+from model.road import Road
 from position import Position
-from node import Node
+from model.node import Node
 
 
 #!
@@ -21,10 +21,9 @@ class NetworkModel(Model):
     # \param N The number of agents.
     # \param width The width of the grid.
     # \param height The height of the grid.
-    def __init__(self, N, width, height):
+    def __init__(self, N, roads: list):
         self.num_agents = N
-        self.roads = []
-        self.G = nx.Graph()
+        self.G = self.create_graph(roads)
         self.grid = NetworkGrid(self.G)
         self.running = True
 
@@ -43,18 +42,16 @@ class NetworkModel(Model):
             #position : Position = self.road.road_cells[i]
             #self.schedule.add(a)
             #self.grid.place_agent(a, (position.x, position.y))
-
-
+        
     #!
     # \brief Creates the roads of the network.
-    def create_road(self, start_point : Node, end_point : Node, no_lanes : int):
-        self.roads.append(Road(no_lanes, start_point, end_point))
-
-    #create a node and place it on the grid
-    def create_node(self, id : int, position : Position):
-        self.node = Node(id, position)
-
-
+    def create_graph(self, roads):
+        G = nx.Graph()
+        i = 1
+        for road in roads:
+            G.add_edge(road._start_point, road._end_point, id=i, capacity=road.capacity)
+            i += 1
+        return G
     #!
     # \brief Executes the steps of the agents of the model.
     def step(self):
