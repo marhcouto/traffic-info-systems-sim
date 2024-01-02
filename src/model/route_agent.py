@@ -1,6 +1,7 @@
 from mesa import Agent, Model
 
-from vehicle import Vehicle
+from model.vehicle import Vehicle
+from model.network_node import NetworkNode
 
 #!
 # \file car_agent.py
@@ -12,7 +13,8 @@ class RouteAgent(Agent):
     # \param unique_id The unique id of the agent.
     # \param model The model the agent belongs to.
     def __init__(self, unique_id : int, model : Model, capacity : int, 
-                 avg_speed : int, distance : int, alpha : float = 0.15, beta : float = 4):
+                 avg_speed : int, distance : int, alpha : float = 0.15, beta : float = 4, 
+                 origin : NetworkNode = None, destination : NetworkNode = None):
         super().__init__(unique_id, model)
 
         self.avg_speed : int = avg_speed # km/h, same as max legal speed
@@ -23,6 +25,11 @@ class RouteAgent(Agent):
                                     # takes to travel the route at free flow
         self.alpha : float = alpha # parameter for the BPR function
         self.beta : float = beta # parameter for the BPR function
+
+        self.origin : NetworkNode = origin
+        self.destination : NetworkNode = destination
+
+
 
     #!
     # \brief Updates vehicles 'position' in the route.
@@ -51,12 +58,27 @@ class RouteAgent(Agent):
         vehicle = Vehicle(self.bpr_function(), self)
         self.queue.append(vehicle)
 
+
     #!
     # \brief Adds a vehicle to the route.
     # \param vehicle The vehicle to add.
     def add_vehicle(self, vehicle : Vehicle):
         vehicle.travel_time = self.bpr_function()
         self.queue.append(vehicle)
+
+    
+    #!
+    # \brief Sets the origin of the route.
+    # \param origin The origin of the route.
+    def set_origin(self, origin : NetworkNode):
+        self.origin = origin
+
+
+    #!
+    # \brief Sets the destination of the route.
+    # \param destination The destination of the route.
+    def set_destination(self, destination : NetworkNode):
+        self.destination = destination
 
 
     #!

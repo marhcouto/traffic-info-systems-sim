@@ -1,14 +1,10 @@
 from mesa import Model
-from mesa.space import NetworkGrid
 from mesa.time import RandomActivation
 
 import networkx as nx
 
-from car_agent import CarAgent
-from road_space_agent import RoadSpaceAgent
-from model.road import Road
-from position import Position
-from model.node import Node
+from model.network_node import NetworkNode
+from model.route_agent import RouteAgent
 
 
 #!
@@ -18,42 +14,44 @@ class NetworkModel(Model):
 
     #!
     # \brief Constructor for the NetworkModel class.
-    # \param N The number of agents.
-    # \param width The width of the grid.
-    # \param height The height of the grid.
-    def __init__(self, N, roads: list):
-        self.num_agents = N
-        self.G = self.create_graph(roads)
-        self.grid = NetworkGrid(self.G)
-        self.running = True
+    def __init__(self):
+        # self.running = True
 
-        # Create scheduler and assign it to the model
+        self.routes : list[RouteAgent] = []
+        self.nodes : list[NetworkNode] = []
         self.schedule = RandomActivation(self)
+        self.G = None
 
-        # Create road marking agents
-        #for i, position in enumerate(self.road.road_cells):
-            #a = RoadSpaceAgent(i + 10000, self)
-            #self.schedule.add(a)
-            #self.grid.place_agent(a, (position.x, position.y))
+        self.nodes.append(NetworkNode(0, self))
+        self.nodes.append(NetworkNode(1, self))
+        self.nodes.append(NetworkNode(2, self))
+        self.nodes.append(NetworkNode(3, self))
+        self.routes.append(RouteAgent(4, self, 40, 40, 40, 0.15, 4, self.nodes[0], self.nodes[1]))
+        self.routes.append(RouteAgent(5, self, 40, 40, 40, 0.15, 4, self.nodes[0], self.nodes[2]))
+        self.routes.append(RouteAgent(6, self, 40, 40, 40, 0.15, 4, self.nodes[1], self.nodes[3]))
+        self.routes.append(RouteAgent(7, self, 40, 40, 40, 0.15, 4, self.nodes[2], self.nodes[3]))
+        self.G = self.create_graph(self.routes)
 
-        # Create car agents
-        #for i in range(self.num_agents):
-            #a = CarAgent(i, self)
-            #position : Position = self.road.road_cells[i]
-            #self.schedule.add(a)
-            #self.grid.place_agent(a, (position.x, position.y))
         
     #!
-    # \brief Creates the roads of the network.
-    def create_graph(self, roads):
+    # \brief Creates the roads of the network and schedules agents.
+    def create_graph(self, routes : list[RouteAgent]):
         G = nx.Graph()
-        i = 1
-        G.add_node(Node("a"))
-        for road in roads:
-            print("estou aqui")
-            G.add_edge(road._start_point, road._end_point, id=i, capacity=road.capacity)
-            i += 1
+        for route in routes:
+            if route.origin is None or route.destination is None:
+                continue
+            if not G.has_node(route.origin):
+                self.schedule.add(route.origin)
+                G.add_node(route.origin)
+            if not G.has_node(route.destination):
+                self.schedule.add(route.destination)
+                G.add_node(route.destination)
+            G.add_edge(route.origin, route.destination, capacity = route.capacity)
+            self.schedule.add(route)
+
         return G
+
+
     #!
     # \brief Executes the steps of the agents of the model.
     def step(self):
