@@ -1,5 +1,6 @@
 from mesa import Model
 from mesa.time import RandomActivation
+from mesa.datacollection import DataCollector
 
 import networkx as nx
 
@@ -21,6 +22,7 @@ class NetworkModel(Model):
         self.nodes : list[NetworkNode] = []
         self.schedule = RandomActivation(self)
         self.G = None
+        self.data_collector = DataCollector(agent_reporters={"Queue Length": lambda a: len(a.queue)})
 
         self.nodes.append(NetworkNode(0, self))
         self.nodes.append(NetworkNode(1, self))

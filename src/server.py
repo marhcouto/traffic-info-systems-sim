@@ -37,13 +37,11 @@ def network_portrayal(G):
 
 model_params = {}
 network = NetworkModule(network_portrayal, 500, 500)
-chart = ChartModule([{'Label': 'Highly Congested', 'Color': '#FF0000'},
-                     {'Label': 'Congested', 'Color': '#008000'},
-                     {'Label': 'Regular', 'Color': '#00C5CD'},
-                     ])
+chart = ChartModule([{"Label": "Queue Length", "Color": "Black"}],
+                    data_collector_name='data_collector')
 
 
-server : ModularServer = ModularServer(NetworkModel, [network], 
+server : ModularServer = ModularServer(NetworkModel, [network, chart], 
                                        "Network Model", model_params)
-server.port : int = 8524 # The default
+server.port : int = 8527 # The default
 server.launch()
