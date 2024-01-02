@@ -3,6 +3,8 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 from network_agent import NetworkAgent
 
+
+
 class NetworkModel(Model):
     def __init__(self, N):
         self.num_agents = N
@@ -23,4 +25,4 @@ class NetworkModel(Model):
             self.G.add_edge(a, b)
 
     def step(self):
-        self.schedule.step()
+        pass

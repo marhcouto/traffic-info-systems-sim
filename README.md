@@ -32,8 +32,14 @@ Alternatively you can use ```pip install -r requirements.txt``` in the root fold
 
 From the root folder:
 
+```sh
+python src/server.py
 ```
-python3 src/server.py
+
+### Running the unit tests
+
+```sh
+python
 ```
 
 ### Authors 
