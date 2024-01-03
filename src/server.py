@@ -1,26 +1,44 @@
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import NetworkModule, ChartModule
 from model.network_model import NetworkModel
+from model.route_agent import RouteState
+from mesa import batch_run
 import scenarios.simple_model
 import scenarios.long_option
+import scenarios.complex_model
 
 
 def network_portrayal(G):
     # The models ensures there is always 1 agent per node
 
     def node_color(node):
-        return "#FF00000"
+        if G.out_degree(node) == 0:
+            return "#ff99ff"
+        elif G.in_degree(node) == 0:
+            return "#003399"
+        else:
+            return "#999999"
 
     def edge_color(node1, node2):
-        return '#e8e8e8'
+        if G.get_edge_data(node1, node2)['agent'].state == RouteState.FREE:
+            return "#23b800"
+        elif G.get_edge_data(node1, node2)['agent'].state == RouteState.FULL:
+            return "#ffd100"
+        elif G.get_edge_data(node1, node2)['agent'].state == RouteState.CONGESTED:
+            return "#ff9900"
+        elif G.get_edge_data(node1, node2)['agent'].state == RouteState.HIGHLY_CONGESTED:
+            return "#dc0d0d"
+        else:
+            print(G[node1][node2]['agent'].state)
+            return '#e8e8e8'
 
-    def edge_length(node1, node2):
-        return G.get_edge_data(node1, node2)['agent'].free_flow_time
+    def edge_width(node1, node2):
+        return G.get_edge_data(node1, node2)['agent'].capacity / 100
 
     portrayal = dict()
-    portrayal['nodes'] = [{'size': 6,
+    portrayal['nodes'] = [{'size': 2,
                            'color': node_color(node),
-                           'tooltip': "Node",
+                           'tooltip': node.label,
                            'id': node.unique_id,
                            }
                           for node in G.nodes()]
@@ -28,7 +46,7 @@ def network_portrayal(G):
     portrayal['edges'] = [{'source': source.unique_id,
                            'target': target.unique_id,
                            'color': edge_color(source, target),
-                           'length': edge_length(source, target),
+                           'width': edge_width(source, target),
                            }
                           for (source, target) in G.edges()]
 
@@ -38,20 +56,34 @@ def network_portrayal(G):
 
 
 model_params = {
-    "num_vehicles_s": 20,
+    "num_vehicles_s": scenarios.complex_model.max_num_vehicles(),
     "alpha": 0.15,
     "beta": 4,
-    "nodes": scenarios.long_option.nodes(),
-    "roads": scenarios.long_option.roads(),
-    "start_node": scenarios.long_option.start_node(),
-    "end_node": scenarios.long_option.end_node()
+    "nodes": scenarios.complex_model.nodes(),
+    "roads": scenarios.complex_model.roads(),
+    "start_node": scenarios.complex_model.start_node(),
+    "end_node": scenarios.complex_model.end_node()
 }
 network = NetworkModule(network_portrayal, 500, 500)
-chart = ChartModule([{"Label": "Queue Length", "Color": "Black"}],
-                    data_collector_name='data_collector')
+chart = ChartModule([{'Label': 'Highly Congested', 'Color': '#FF0000'},
+                     {'Label': 'Congested', 'Color': '#008000'},
+                     {'Label': 'Regular', 'Color': '#00C5CD'},
+                     ], data_collector_name='data_collector')
 
 
-server : ModularServer = ModularServer(NetworkModel, [network, chart], 
+#
+# results = batch_run(
+#     NetworkModel,
+#     parameters=model_params,
+#     iterations=5,
+#     max_steps=100,
+#     number_processes=1,
+#     data_collection_period=1,
+#     display_progress=True,
+# )
+
+
+server : ModularServer = ModularServer(NetworkModel, [network, chart],
                                        "Network Model", model_params)
 server.port : int = 8527 # The default
 server.launch()

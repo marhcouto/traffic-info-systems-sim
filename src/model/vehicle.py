@@ -1,5 +1,11 @@
 from mesa import Agent, Model
 from model.network_node import NetworkNode
+from enum import Enum
+
+class VechicleType(Enum):
+    FASTER = 1
+    INFORMED = 2
+
 
 #! 
 # \file vehicle.py
@@ -20,27 +26,46 @@ class Vehicle(Agent):
     def step(self):
         self.travel_time += 1
 
-    def decide_road(self, node):
+    def decide_faster_road(self, node):
         possible_routes = self.model.G.out_edges(node)
 
-        max_idx = 0
-        max_route = 0
+        min_time = 99999999999999999999999
+        min_route = 0
         for u,v in possible_routes:
             route = self.model.G[u][v]['agent']
-            if route.travel_time() > max_idx:
-                max_idx = route.travel_time()
-                max_route = route
 
-        if max_route == 0:
+            if route.travel_time() < min_time:
+                min_time = route.travel_time()
+                min_route = route
+
+        if min_route == 0:
             return -1
         else:
-            return max_route
+            return min_route
+
+
+    def decide_available_road(self, node):
+        possible_routes = self.model.G.out_edges(node)
+
+        min_time = 99999999999999999999999
+        min_route = 0
+        for u, v in possible_routes:
+            route = self.model.G[u][v]['agent']
+
+            if route.travel_time() < min_time:
+                min_time = route.travel_time()
+                min_route = route
+
+        if min_route == 0:
+            return -1
+        else:
+            return min_route
 
     def change_road(self):
         if self.pos == 0:
-            route = self.decide_road(self.model.start)
+            route = self.decide_faster_road(self.model.start)
         else:
-            route = self.decide_road(self.pos.destination)
+            route = self.decide_faster_road(self.pos.destination)
 
         self.pos = route
         if route != -1:

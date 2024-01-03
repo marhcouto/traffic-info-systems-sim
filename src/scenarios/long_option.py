@@ -1,20 +1,21 @@
 
 def roads():
     roads = []
-    r1 = [0, 2, 200, 4]
-    r2 = [0, 1, 150, 2]
-    r3 = [1, 2, 60, 3]
+    r1 = ["A", "C", 200, 20]
+    r2 = ["A", "B", 150, 15]
+    r3 = ["B", "C", 60, 4]
     roads.append(r1)
     roads.append(r2)
     roads.append(r3)
     return roads
 
 def nodes():
-    nodes = [0, 1, 2]
+    nodes = ["A", "B", "C"]
     return nodes
 
 def start_node():
-    return 0
+    return "A"
 
 def end_node():
-    return 2
+    return "C"
+    

@@ -9,6 +9,8 @@ from model.route_agent import RouteAgent
 from model.vehicle import Vehicle
 
 
+
+
 #!
 # \file network_model.py
 # \brief A class representing the road network models.
@@ -25,7 +27,6 @@ class NetworkModel(Model):
         self.current_id = -1
         self.num_vehicles_s = num_vehicles_s
         self.schedule = RandomActivation(self)
-        self.data_collector = DataCollector(agent_reporters={"Queue Length": lambda a: len(a.queue)})
 
 
         self.routes = []
@@ -35,13 +36,29 @@ class NetworkModel(Model):
         self.total_travel_time = 0
         self.num_killed_vehicles = 0
 
+        self.data_collector = DataCollector(
+            model_reporters={"Average Travel Time": avg_travel_time},
+
+        )
+
+    def find_shortest_path(self, node):
+        try:
+            path = nx.dijkstra_path(self.G, node, self.end, weight="agent.travel_time()")
+            return path[1]
+        except nx.NetworkXNoPath:
+            print(f"No path exists between {node} and {self.end.label}.")
+            return None
+        except nx.NodeNotFound as e:
+            print(f"Error: {e}")
+            return None
+
     #!
     # \brief Creates the roads of the network and schedules agents.
     def create_graph(self, start_node, end_node, nodes, roads):
         self.G = nx.DiGraph()
         node_dict = {}
         for node in nodes:
-            n = NetworkNode(self.next_id(), self)
+            n = NetworkNode(self.next_id(), self, node)
             self.schedule.add(n)
             self.G.add_node(n)
             if node == start_node:
@@ -84,20 +101,23 @@ class NetworkModel(Model):
         else:
             return self.total_travel_time / self.num_killed_vehicles
 
-    def avg_queue_flow_to_capacity(self):
-        sum = 0
-        count = 0
+    def max_volume_to_capacity_ratio(self):
+        max_ratio = 0
+
         for route in self.routes:
-            sum += route.flow_to_capacity_ratio()
-            count += 1
-        
-        return sum / count
+            if route.volume_to_capacity_ratio() > max_ratio:
+                max_ratio = route.volume_to_capacity_ratio()
+
+        return max_ratio
     #!
     # \brief Executes the steps of the agents of the models.
     def step(self):
         self.create_vehicles()
         self.kill_vehicles()
+        print(self.start.label)
+        print(self.find_shortest_path(self.start).label)
+        self.data_collector.collect(self)
         self.schedule.step()
         print(self.avg_travel_time())
-        print(self.avg_queue_flow_to_capacity())
-        print(len(self.routes[0].queue))
+        print(self.max_volume_to_capacity_ratio())
+
