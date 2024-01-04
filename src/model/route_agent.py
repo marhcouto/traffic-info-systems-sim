@@ -20,7 +20,7 @@ class RouteAgent(Agent):
     # \param unique_id The unique id of the agent.
     # \param models The models the agent belongs to.
     def __init__(self, unique_id : int, model : Model, capacity : int, 
-                 free_flow_time: int, alpha : float = 0.15, beta : float = 4,
+                 free_flow_time: int, tablet: bool = False, alpha : float = 0.15, beta : float = 4,
                  origin : NetworkNode = None, destination : NetworkNode = None):
         super().__init__(unique_id, model)
         self.capacity : int = capacity # in vehicles per minute
@@ -32,14 +32,29 @@ class RouteAgent(Agent):
         self.state : str = RouteState.FREE
         self.queue : [Vehicle, float] = []# list of cars in the route
                                     # takes to travel the route at free flow
-
         
-
-
+        self.tablet = tablet
+        self.tt_history = []
+        self.it_history = []
 
     #!
     # \brief Updates vehicles 'position' in the route.
     def step(self):
+
+        if len(self.tt_history) < self.model.gps_delay:
+            self.tt_history.append(self.travel_time())
+            self.model.G[self.origin][self.destination]['travel_time'] = self.free_flow_time
+        else:
+            self.tt_history.append(self.travel_time())
+            self.model.G[self.origin][self.destination]['travel_time'] = self.tt_history.pop(0)
+        
+        if self.tablet:
+            if len(self.it_history) < self.model.tablet_delay:
+                self.it_history.append(self.travel_time())
+                self.model.G[self.origin][self.destination]['informed_time'] = self.free_flow_time
+            else:
+                self.it_history.append(self.travel_time())
+                self.model.G[self.origin][self.destination]['informed_time'] = self.it_history.pop(0)
 
         if len(self.queue) <= 0:
             return
@@ -61,16 +76,12 @@ class RouteAgent(Agent):
         else:
             self.state = RouteState.FREE
 
-
-
-            # self.destination.add_vehicle()
-            # Put vehicle to the next route if it exists
-
     #!
     # \brief Adds a vehicle to the route.
     # \param vehicle The vehicle to add.
     def add_vehicle(self, vehicle):
         self.queue.append([vehicle, self.travel_time()])
+        # self.model.G[self.origin][self.destination]['travel_time'] = self.travel_time()
 
     #!
     # \brief Calculate the travel time for a vehicle entering the route.

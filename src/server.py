@@ -5,7 +5,8 @@ from model.route_agent import RouteState
 from mesa import batch_run
 import scenarios.simple_model
 import scenarios.long_option
-import scenarios.complex_model
+import scenarios.small_model
+import scenarios.large_model
 
 
 def network_portrayal(G):
@@ -56,19 +57,22 @@ def network_portrayal(G):
 
 
 model_params = {
-    "num_vehicles_s": scenarios.complex_model.max_num_vehicles(),
+    "num_vehicles_s": 10,
     "alpha": 0.15,
     "beta": 4,
-    "nodes": scenarios.complex_model.nodes(),
-    "roads": scenarios.complex_model.roads(),
-    "start_node": scenarios.complex_model.start_node(),
-    "end_node": scenarios.complex_model.end_node()
+    "nodes": scenarios.large_model.nodes(),
+    "roads": scenarios.large_model.roads(),
+    "start_node": scenarios.large_model.start_node(),
+    "end_node": scenarios.large_model.end_node(),
+    "prob_gps": 1.0,
+    "gps_delay": 0,
+    "prob_informed": 0.0,
+    "tablet_delay": 0,
 }
 network = NetworkModule(network_portrayal, 500, 500)
-chart = ChartModule([{'Label': 'Highly Congested', 'Color': '#FF0000'},
-                     {'Label': 'Congested', 'Color': '#008000'},
-                     {'Label': 'Regular', 'Color': '#00C5CD'},
-                     ], data_collector_name='data_collector')
+chart = ChartModule([{"Label": "Average Time Travel", "Color": "Black"}],
+                    data_collector_name='data_collector')
+
 
 
 #
@@ -81,6 +85,15 @@ chart = ChartModule([{'Label': 'Highly Congested', 'Color': '#FF0000'},
 #     data_collection_period=1,
 #     display_progress=True,
 # )
+
+# batch_run = batch_run(NetworkModel,
+#                         parameters=model_params,
+#                         iterations=5,
+#                         max_steps=100)
+
+# batch_run.run_all()
+#batch_results = batch_run.get_model_vars_dataframe()
+#print(batch_results)
 
 
 server : ModularServer = ModularServer(NetworkModel, [network, chart],
