@@ -8,7 +8,8 @@ from model.network_node import NetworkNode
 from model.route_agent import RouteAgent
 from model.vehicle import Vehicle
 
-
+def function1(model, index):
+    return model.routes[index].volume_to_capacity_ratio()
 
 
 #!
@@ -37,12 +38,20 @@ class NetworkModel(Model):
         self.active_vehicles = []
         self.total_travel_time = 0
         self.num_killed_vehicles = 0
+        self.iterations = 0
+        self.max_ratio_sum = 0
         self.best_time = NetworkModel.get_best_path(self.G, self.start, self.end, "free_flow_time")
 
-        self.data_collector = DataCollector(model_reporters={"Average Travel Time": self.avg_travel_time,
-                                                            "Average Travel Efficiency": self.avg_travel_efficiency,
-                                                            "No. Vehicles Finished": self.num_killed_vehicles,
-                                                            "Active Vehicles": self.active_vehicles})
+        model_reporters_dictionary = {"Average Travel Time": self.avg_travel_time,
+                            "Average Travel Efficiency": NetworkModel.avg_travel_efficiency,
+                            "Max Congestion Ratio": self.avg_max_vc_ratio,
+                            "No. Vehicles Complete": lambda a : self.num_killed_vehicles}
+        
+        for i in range(len(self.routes)):
+            model_reporters_dictionary[str(self.routes[i].origin.unique_id) + " -> " + 
+                        str(self.routes[i].destination.unique_id)] = lambda a, i=i : function1(self, i)
+        # print(model_reporters_dictionary)
+        self.data_collector = DataCollector(model_reporters=model_reporters_dictionary)
 
     #!
     # \brief gets the best shortest path according to 
@@ -116,12 +125,12 @@ class NetworkModel(Model):
 
 
     #!
-    # \brief calculates the travel efficieny, which is the best time possible between the points
+    # \brief calculates the travel efficiency, which is the best time possible between the points
     # divided by the average time traveled per vehicle
-    # \return average travel efficieny 
+    # \return average travel efficiency 
     def avg_travel_efficiency(model):
         return 0 if model.num_killed_vehicles == 0 else model.best_time \
-            (model.total_travel_time / model.num_killed_vehicles)
+            / (model.total_travel_time / model.num_killed_vehicles)
 
 
     #!
@@ -131,28 +140,33 @@ class NetworkModel(Model):
         return 0 if model.num_killed_vehicles == 0 else model.total_travel_time \
             / model.num_killed_vehicles
         
+    def avg_max_vc_ratio(model):
+        return 0 if model.iterations == 0 else model.max_ratio_sum / model.iterations
 
     #!
     # \brief calculates the maximum volume to capacity ratio of any road
     # which illustrates the maximum congestion values
-    def max_volume_to_capacity_ratio(self):
+    def update_max_vc_ratio(self):
+
         max_ratio = 0
 
         for route in self.routes:
             if route.volume_to_capacity_ratio() > max_ratio:
                 max_ratio = route.volume_to_capacity_ratio()
 
-        return max_ratio
+        self.max_ratio_sum += max_ratio
 
 
     #!
     # \brief Executes the steps of the agents of the models.
     def step(self):
+        self.data_collector.collect(self)
         self.create_vehicles()
         self.kill_vehicles()
+        self.update_max_vc_ratio()
         self.schedule.step()
-        print(self.avg_travel_time())
-        print(self.max_volume_to_capacity_ratio())
+        self.iterations += 1
+        print(self.num_killed_vehicles)
         # for route in self.routes:
         #     print(route.volume())
 

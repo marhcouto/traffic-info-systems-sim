@@ -41,12 +41,13 @@ class RouteAgent(Agent):
     # \brief Updates vehicles 'position' in the route.
     def step(self):
 
-        if len(self.tt_history) < self.model.gps_delay:
-            self.tt_history.append(self.travel_time())
-            self.model.G[self.origin][self.destination]['travel_time'] = self.free_flow_time
-        else:
-            self.tt_history.append(self.travel_time())
-            self.model.G[self.origin][self.destination]['travel_time'] = self.tt_history.pop(0)
+        if self.model.gps_delay > 0:
+            if len(self.tt_history) < self.model.gps_delay - 1:
+                self.tt_history.append(self.travel_time())
+                self.model.G[self.origin][self.destination]['travel_time'] = self.free_flow_time
+            else:
+                self.tt_history.append(self.travel_time())
+                self.model.G[self.origin][self.destination]['travel_time'] = self.tt_history.pop(0)
         
         if self.tablet:
             if len(self.it_history) < self.model.tablet_delay:
@@ -81,7 +82,8 @@ class RouteAgent(Agent):
     # \param vehicle The vehicle to add.
     def add_vehicle(self, vehicle):
         self.queue.append([vehicle, self.travel_time()])
-        # self.model.G[self.origin][self.destination]['travel_time'] = self.travel_time()
+        if self.model.gps_delay == 0:
+            self.model.G[self.origin][self.destination]['travel_time'] = self.travel_time()
 
     #!
     # \brief Calculate the travel time for a vehicle entering the route.

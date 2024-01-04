@@ -5,20 +5,20 @@ def max_num_vehicles():
 
 def roads():
     roads = []
-    r1 = ["A", "B", 150, 16, False]
-    r2 = ["A", "C", 50, 7, False]
-    r3 = ["A", "D", 150, 16, False]
-    r4 = ["B", "C", 50, 12, False]
-    r5 = ["B", "E", 100, 14, False]
-    r7 = ["C", "J", 50, 10, False]
-    r8 = ["E", "J", 50, 10, False]
-    r9 = ["E", "H", 50, 5, False]
-    r10 = ["H", "J", 50, 10, False]
-    r11 = ["D", "F", 150, 5, False]
-    r12 = ["F", "G", 150, 10, False]
-    r13 = ["G", "J", 200, 10, False]
-    r14 = ["C", "I", 50, 5, False]
-    r15 = ["I", "G", 50, 5, False]
+    r1 = [0, 1, 150, 16, False]
+    r2 = [0, 2, 50, 7, False]
+    r3 = [0, 3, 150, 16, False]
+    r4 = [1, 2, 50, 12, False]
+    r5 = [1, 4, 100, 14, False]
+    r7 = [2, 9, 50, 10, False]
+    r8 = [4, 9, 50, 10, False]
+    r9 = [4, 7, 50, 5, False]
+    r10 = [7, 9, 50, 10, False]
+    r11 = [3, 5, 150, 5, False]
+    r12 = [5, 6, 150, 10, False]
+    r13 = [6, 9, 200, 10, False]
+    r14 = [2, 8, 50, 5, False]
+    r15 = [8, 6, 50, 5, False]
 
     roads.append(r1)
     roads.append(r2)
@@ -38,12 +38,12 @@ def roads():
     return roads
 
 def nodes():
-    nodes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+    nodes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     return nodes
 
 def start_node():
-    return "A"
+    return 0
 
 def end_node():
-    return "J"
+    return 9
 

@@ -1,5 +1,5 @@
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.modules import NetworkModule, ChartModule
+from mesa.visualization.modules import NetworkModule, ChartModule, BarChartModule
 from model.network_model import NetworkModel
 from model.route_agent import RouteState
 from mesa import batch_run
@@ -7,6 +7,7 @@ import scenarios.simple_model
 import scenarios.long_option
 import scenarios.small_model
 import scenarios.large_model
+import scenarios.medium_model
 
 
 def network_portrayal(G):
@@ -14,9 +15,9 @@ def network_portrayal(G):
 
     def node_color(node):
         if G.out_degree(node) == 0:
-            return "#ff99ff"
-        elif G.in_degree(node) == 0:
             return "#003399"
+        elif G.in_degree(node) == 0:
+            return "#99ccff"
         else:
             return "#999999"
 
@@ -53,11 +54,36 @@ def network_portrayal(G):
 
     return portrayal
 
+dumb = {
+    "num_vehicles_s": 30,
+    "alpha": 0.15,
+    "beta": 4,
+    "nodes": scenarios.large_model.nodes(),
+    "roads": scenarios.large_model.roads(),
+    "start_node": scenarios.large_model.start_node(),
+    "end_node": scenarios.large_model.end_node(),
+    "prob_gps": 0.0,
+    "gps_delay": 0,
+    "prob_informed": 0.0,
+    "tablet_delay": 0,
+}
 
+half_smart = {
+    "num_vehicles_s": 30,
+    "alpha": 0.15,
+    "beta": 4,
+    "nodes": scenarios.large_model.nodes(),
+    "roads": scenarios.large_model.roads(),
+    "start_node": scenarios.large_model.start_node(),
+    "end_node": scenarios.large_model.end_node(),
+    "prob_gps": 0.5,
+    "gps_delay": 0,
+    "prob_informed": 0.0,
+    "tablet_delay": 0,
+}
 
-
-model_params = {
-    "num_vehicles_s": 10,
+smart = {
+    "num_vehicles_s": 30,
     "alpha": 0.15,
     "beta": 4,
     "nodes": scenarios.large_model.nodes(),
@@ -69,34 +95,56 @@ model_params = {
     "prob_informed": 0.0,
     "tablet_delay": 0,
 }
+
 network = NetworkModule(network_portrayal, 500, 500)
-chart = ChartModule([{"Label": "Average Time Travel", "Color": "Black"}],
+chart1 = ChartModule([{"Label": "Average Travel Time", "Color": "Black"},
+                    {"Label": "Average Travel Efficiency", "Color": "Green"}, 
+                      {"Label": "Max Congestion Ratio", "Color": "Red"},
+                      {"Label": "No. Vehicles Complete", "Color": "Blue"}],
                     data_collector_name='data_collector')
+# chart2 = ChartModule([{"Label": "Average Travel Efficiency", "Color": "Black"}, 
+#                       {"Label": "Max Congestion Ratio", "Color": "Red"}],
+#                     data_collector_name='data_collector')
 
+series = [{"Label": str(road[0]) + " -> " + str(road[1]), "Color": "Black"} for road in scenarios.large_model.roads()]
+barchart = BarChartModule(series, canvas_width=100*len(series), data_collector_name='data_collector')
 
-
-#
-# results = batch_run(
-#     NetworkModel,
-#     parameters=model_params,
-#     iterations=5,
-#     max_steps=100,
-#     number_processes=1,
-#     data_collection_period=1,
-#     display_progress=True,
-# )
-
-# batch_run = batch_run(NetworkModel,
-#                         parameters=model_params,
-#                         iterations=5,
-#                         max_steps=100)
-
-# batch_run.run_all()
-#batch_results = batch_run.get_model_vars_dataframe()
-#print(batch_results)
-
-
-server : ModularServer = ModularServer(NetworkModel, [network, chart],
-                                       "Network Model", model_params)
+server : ModularServer = ModularServer(NetworkModel, [network, barchart, chart1],
+                                    "Network Model", smart)
 server.port : int = 8527 # The default
 server.launch()
+
+
+
+model = NetworkModel(**dumb)
+iterations = 500
+
+for i in range(iterations):
+    model.step()
+
+print()
+print("DUMB:")
+print(model.avg_travel_time())
+print(model.avg_max_vc_ratio())
+
+model = NetworkModel(**half_smart)
+iterations = 500
+
+for i in range(iterations):
+    model.step()
+
+print()
+print("HALF SMART:")
+print(model.avg_travel_time())
+print(model.avg_max_vc_ratio())
+
+model = NetworkModel(**smart)
+iterations = 500
+
+for i in range(iterations):
+    model.step()
+
+print()
+print("SMART:")
+print(model.avg_travel_time())
+print(model.avg_max_vc_ratio())
