@@ -16,22 +16,21 @@ class Vehicle(Agent):
 
     #!
     # \brief Constructor for the Vehicle class.
-    # \param route The route the vehicle is currently in.
-    # \param travel_time The time it takes for the vehicle to travel the route.
-    def __init__(self, unique_id, model, prob_gps, prob_informed):
+    def __init__(self, unique_id, model, prob_gps):
         super().__init__(unique_id, model)
-        self._travel_time = 0
-        self.queue = 0
-        self.pos = 0
-        self.prob_gps = prob_gps
-        self.prob_informed = prob_informed
+        self._travel_time = 0 # Time the vehicle has been traveling
+        self.queue = 0 # Time the vehicle has been in the queue
+        self.pos = 0 # Current position of the vehicle
+        self.prob_gps = prob_gps # Probability of the vehicle following the GPS
         self.change_road()
 
     def step(self):
         self.travel_time += 1
 
 
-
+    #!
+    # \brief Updates vehicles 'position' in the route.
+    # \param route The route the vehicle is in.
     def decide_road(self, node):
 
         possible_routes = self.model.G.out_edges(node)
@@ -49,7 +48,12 @@ class Vehicle(Agent):
             return -1
         else:
             return min_route
-
+        
+    
+    #!
+    # \brief Updates vehicles 'position' in the route.
+    # designed for the dumb vehicle that does not know the network
+    # \param route The route the vehicle is in.
     def next_route_dumb(self, node):
         try:
             path = nx.dijkstra_path(self.model.G, node, self.model.end, weight="free_flow_time")
@@ -64,20 +68,10 @@ class Vehicle(Agent):
             print(f"Vehicle Error: {e}")
             return -1
 
-    def next_route_informed(self, node):
-        try:
-            path = nx.dijkstra_path(self.model.G, node, self.model.end, weight="informed_time")
-            if node == self.model.end:
-                return -1
-            else:
-                return self.model.G[node][path[1]]['agent']
-        except nx.NetworkXNoPath:
-            print(f"No path exists between {node} and {self.model.end.label}.")
-            return -1
-        except nx.NodeNotFound as e:
-            print(f"Error: {e}")
-            return -1
-
+    #!
+    # \brief Updates vehicles 'position' in the route.
+    # designed for the vehicle that knows the network
+    # \param route The route the vehicle is in.
     def next_route_gps(self, node):
         try:
             path = nx.dijkstra_path(self.model.G, node, self.model.end, weight="travel_time")
@@ -92,6 +86,9 @@ class Vehicle(Agent):
             print(f"Error: {e}")
             return -1
 
+    #!
+    # \brief Updates vehicles 'position' in the route.
+    # \param route The route the vehicle is in.
     def change_road(self):
         if self.pos == 0:
             node = self.model.start
@@ -103,10 +100,6 @@ class Vehicle(Agent):
                 self.pos = self.next_route_gps(node)
             else:
                 self.pos = self.next_route_dumb(node)
-        # elif self.pos != 0 and self.pos.tablet == True:
-        #     if self.prob_informed > 0:
-        #         if random() < self.prob_informed:
-        #             self.pos = self.next_route_informed(node)
         else:
             self.pos = self.next_route_dumb(node)
             

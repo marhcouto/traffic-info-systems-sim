@@ -19,27 +19,23 @@ class NetworkModel(Model):
 
     #!
     # \brief Constructor for the NetworkModel class.
-    # def __init__(self, nodes, roads, start, end):
-    def __init__(self, num_vehicles_s: int, start_node, end_node, nodes: list, roads : list,  prob_gps : float, gps_delay, prob_informed, tablet_delay, alpha : float = 0.15, beta : float = 4):
-        # self.running = True
+    def __init__(self, num_vehicles_s: int, start_node, end_node, nodes: list, roads : list,  prob_gps : float, gps_delay, alpha : float = 0.15, beta : float = 4):
 
         self.alpha : float = alpha # parameter for the BPR function
-        self.beta : float = beta # param
+        self.beta : float = beta # parameter for the BPR function
         self.num_vehicles_s = num_vehicles_s # Vehicles being generated at each moment
-        self.prob_gps = prob_gps
-        self.gps_delay = gps_delay
-        self.prob_informed = gps_delay
-        self.tablet_delay = tablet_delay
+        self.prob_gps = prob_gps # Probability of a vehicle following the GPS
+        self.gps_delay = gps_delay # Number of iterations the GPS is delayed
         self.current_id = -1 # current agent id
         self.schedule = RandomActivation(self)
 
-        self.routes = []
+        self.routes = [] # List of routes in the network
         self.create_graph(start_node, end_node, nodes, roads)
-        self.active_vehicles = []
-        self.total_travel_time = 0
-        self.num_killed_vehicles = 0
-        self.iterations = 0
-        self.max_ratio_sum = 0
+        self.active_vehicles = [] # Vehicles currently in the network
+        self.total_travel_time = 0 # Total travel time of all vehicles
+        self.num_killed_vehicles = 0 # Number of vehicles that reached their destination
+        self.iterations = 0 # Number of iterations the model has run
+        self.max_ratio_sum = 0 # Sum of the maximum volume to capacity ratio of any road
         self.best_time = NetworkModel.get_best_path(self.G, self.start, self.end, "free_flow_time")
 
         model_reporters_dictionary = {"Average Travel Time": self.avg_travel_time,
@@ -50,12 +46,10 @@ class NetworkModel(Model):
         for i in range(len(self.routes)):
             model_reporters_dictionary[str(self.routes[i].origin.unique_id) + " -> " + 
                         str(self.routes[i].destination.unique_id)] = lambda a, i=i : function1(self, i)
-        # print(model_reporters_dictionary)
         self.data_collector = DataCollector(model_reporters=model_reporters_dictionary)
 
     #!
-    # \brief gets the best shortest path according to 
-    # the weight parameter
+    # \brief gets the best shortest path according to the weight parameter
     # \param graph Graph to be used
     # \param start Start node
     # \param end End node
@@ -94,26 +88,28 @@ class NetworkModel(Model):
             node_dict[node] = n
 
         for road in roads:
-            if len(road) == 5:
+            if len(road) == 4:
                 origin = road[0]
                 destination = road[1]
                 capacity = road[2]
                 free_flow_time = road[3]
-                tablet = road[4]
 
-                route = RouteAgent(self.next_id(), self, capacity, free_flow_time, tablet, self.alpha, self.beta, node_dict[origin], node_dict[destination])
+                route = RouteAgent(self.next_id(), self, capacity, free_flow_time, self.alpha, self.beta, node_dict[origin], node_dict[destination])
 
                 self.G.add_edge(node_dict[origin], node_dict[destination], agent = route, free_flow_time = route.free_flow_time, travel_time = route.free_flow_time, informed_time = route.free_flow_time)
                 self.routes.append(route)
                 self.schedule.add(route)
 
-
+    #!
+    # \brief Creates the vehicles of the network and schedules agents.
     def create_vehicles(self):
         for i in range(self.num_vehicles_s):
-            v = Vehicle(self.next_id(), self, self.prob_gps, self.prob_informed)
+            v = Vehicle(self.next_id(), self, self.prob_gps)
             self.active_vehicles.append(v)
             self.schedule.add(v)
 
+    #!
+    # \brief Removes vehicles that have reached their destination.
     def kill_vehicles(self):
         vehicles = self.active_vehicles.copy()
         for vehicle in vehicles:
@@ -156,6 +152,12 @@ class NetworkModel(Model):
 
         self.max_ratio_sum += max_ratio
 
+    #!
+    # \brief Gets the graph of the model.
+    # \return The graph of the model.
+    def getGraph(self):
+        return self.G
+
 
     #!
     # \brief Executes the steps of the agents of the models.
@@ -166,7 +168,3 @@ class NetworkModel(Model):
         self.update_max_vc_ratio()
         self.schedule.step()
         self.iterations += 1
-        print(self.num_killed_vehicles)
-        # for route in self.routes:
-        #     print(route.volume())
-

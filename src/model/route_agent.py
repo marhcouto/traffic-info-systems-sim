@@ -20,20 +20,19 @@ class RouteAgent(Agent):
     # \param unique_id The unique id of the agent.
     # \param models The models the agent belongs to.
     def __init__(self, unique_id : int, model : Model, capacity : int, 
-                 free_flow_time: int, tablet: bool = False, alpha : float = 0.15, beta : float = 4,
+                 free_flow_time: int, alpha : float = 0.15, beta : float = 4,
                  origin : NetworkNode = None, destination : NetworkNode = None):
         super().__init__(unique_id, model)
         self.capacity : int = capacity # in vehicles per minute
         self.free_flow_time : int = free_flow_time # in minutes
         self.alpha : float = alpha # parameter for the BPR function
         self.beta : float = beta # parameter for the BPR function
-        self.origin = origin
+        self.origin = origin 
         self.destination : NetworkNode = destination
         self.state : str = RouteState.FREE
         self.queue : [Vehicle, float] = []# list of cars in the route
                                     # takes to travel the route at free flow
         
-        self.tablet = tablet
         self.tt_history = []
         self.it_history = []
 
@@ -49,13 +48,7 @@ class RouteAgent(Agent):
                 self.tt_history.append(self.travel_time())
                 self.model.G[self.origin][self.destination]['travel_time'] = self.tt_history.pop(0)
         
-        if self.tablet:
-            if len(self.it_history) < self.model.tablet_delay:
-                self.it_history.append(self.travel_time())
-                self.model.G[self.origin][self.destination]['informed_time'] = self.free_flow_time
-            else:
-                self.it_history.append(self.travel_time())
-                self.model.G[self.origin][self.destination]['informed_time'] = self.it_history.pop(0)
+
 
         if len(self.queue) <= 0:
             return
@@ -92,13 +85,16 @@ class RouteAgent(Agent):
         return self.free_flow_time * (1 + self.alpha * \
                                 (self.volume() / self.capacity) ** self.beta)
 
-
+    #!
+    # \brief Returns the volume to capacity ratio of the route.
+    # \return The volume to capacity ratio of the route.
     def volume_to_capacity_ratio(self):
         return self.volume() / self.capacity
 
 
     #!
     # \brief Returns the volume of the route.
+    # \return The volume of the route.
     def volume(self):
         return len(self.queue)
 
