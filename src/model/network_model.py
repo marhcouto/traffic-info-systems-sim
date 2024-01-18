@@ -1,7 +1,7 @@
 import networkx as nx
 from mesa import Model
 from mesa.datacollection import DataCollector
-from mesa.time import RandomActivation
+from mesa.time import RandomActivation, BaseScheduler
 
 from model.network_node import NetworkNode
 from model.route_agent import RouteAgent
@@ -28,7 +28,7 @@ class NetworkModel(Model):
         self.prob_gps = prob_gps  # Probability of a vehicle following the GPS
         self.gps_delay = gps_delay  # Number of iterations the GPS is delayed
         self.current_id = -1  # current agent id
-        self.schedule = RandomActivation(self)
+        self.schedule = BaseScheduler(self)
 
         self.routes = []  # List of routes in the network
         self.create_graph(start_node, end_node, nodes, roads)
@@ -37,7 +37,7 @@ class NetworkModel(Model):
         self.num_killed_vehicles = 0  # Number of vehicles that reached their destination
         self.iterations = 0  # Number of iterations the model has run
         self.max_ratio_sum = 0  # Sum of the maximum volume to capacity ratio of any road
-        self.best_time = NetworkModel.get_best_path(self.G, self.start, self.end, "free_flow_time")
+        self.best_time = self.get_best_time()
 
         model_reporters_dictionary = {"Average Travel Time": self.avg_travel_time,
                                       "Average Travel Efficiency": NetworkModel.avg_travel_efficiency,
@@ -56,17 +56,17 @@ class NetworkModel(Model):
     # \param end End node
     # \param weight String denoting the value to take as weight from the edges
     # \return ArrayLike
-    def get_best_path(graph, start, end, weight: str):
+    def get_best_time(self):
         try:
-            path = nx.dijkstra_path(graph, start, end, weight=weight)
+            path = nx.dijkstra_path(self.G, self.start, self.end, weight="free_flow_time")
 
             sum = 0
             for i in range(len(path) - 1):
-                sum += graph[path[i]][path[i + 1]][weight]
+                sum += self.G[path[i]][path[i + 1]]["free_flow_time"]
 
             return sum
         except nx.NetworkXNoPath:
-            print(f"No path exists between {start} and {end}.")
+            print(f"No path exists between {self.start} and {self.end}.")
             return None
         except nx.NodeNotFound as e:
             print(f"Error: {e}")
@@ -88,7 +88,6 @@ class NetworkModel(Model):
                 self.end = n
             node_dict[node] = n
 
-        print("done")
         for road in roads:
             if len(road) == 4:
                 origin = road[0]

@@ -4,10 +4,12 @@ def max_num_vehicles():
 
 def roads():
     roads = []
-    r1 = ["A", "C", 200, 20]
-    r2 = ["A", "B", 150, 16]
-    r3 = ["B", "D", 150, 5]
-    r4 = ["C", "D", 250, 0]
+    r2 = ["A", "B", 10, 3]
+    r3 = ["B", "D", 10, 14]
+
+
+    r1 = ["A", "C", 10, 14]
+    r4 = ["C", "D", 10, 2]
     roads.append(r1)
     roads.append(r2)
     roads.append(r3)

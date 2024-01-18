@@ -19,13 +19,16 @@ class Vehicle(Agent):
 
         self.travel_time = 0  # Time the vehicle has been in the network
         self.pos = 0  # The route the vehicle is in, intially set to 0
-        self.change_road()  # Choose the first route
+
 
     def step(self):
+        if self.pos == 0:
+            self.change_road()  # Choose the first route
         self.travel_time += 1
 
     # Returns the next route the vehicle should take.
     # Computes the shortest  
+    # 
     # Params:
     #   node: route start node
     def next_route_dumb(self, node):
@@ -42,10 +45,10 @@ class Vehicle(Agent):
             print(f"Vehicle Error: {e}")
             return -1
 
-    # !
-    # \brief Updates vehicles 'position' in the route.
-    # designed for the vehicle that knows the network
-    # \param route The route the vehicle is in.
+    # Return next route option taking current travel time into account
+    # 
+    # Params:
+    #   node: route start node
     def next_route_gps(self, node):
         try:
             path = nx.dijkstra_path(self.model.G, node, self.model.end, weight="travel_time")
@@ -60,9 +63,10 @@ class Vehicle(Agent):
             print(f"Error: {e}")
             return -1
 
-    # !
-    # \brief Updates vehicles 'position' in the route.
-    # \param route The route the vehicle is in.
+    # Return next route option taking free flow time into account
+    # 
+    # Params:
+    #   node: route start node
     def change_road(self):
         if self.pos == 0:
             node = self.model.start
@@ -79,14 +83,3 @@ class Vehicle(Agent):
 
         if self.pos != -1:
             self.pos.add_vehicle(self)
-
-    # !
-    # \brief Get the time the vehicle has been in the queue.
-    @property
-    def time_in_queue(self):
-        return self._time_in_queue
-
-    # !
-    # \brief Returns a string representation of the vehicle.
-    def __str__(self):
-        return f"Vehicle: {self._route} {self.travel_time} {self._time_in_queue}"

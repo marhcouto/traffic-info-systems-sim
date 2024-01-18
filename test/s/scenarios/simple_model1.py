@@ -1,6 +1,6 @@
 def roads():
     roads = []
-    r1 = [0, 1, 200, 4]
+    r1 = [0, 1, 5, 4]
     roads.append(r1)
     return roads
 

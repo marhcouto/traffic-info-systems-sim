@@ -39,7 +39,7 @@ class RouteAgent(Agent):
         self.origin = origin
         self.destination: NetworkNode = destination
 
-        self.state: str = RouteState.FREE  # Intial state is set as FREE
+        self.state: str = RouteState.FREE  # Initial state is set as FREE
         self.queue: [Vehicle, float] = []  # Queue of vehicles in the route
         self.tt_history = []  # History of travel times for the route (information delay)
 
@@ -47,13 +47,7 @@ class RouteAgent(Agent):
     def step(self):
 
         # Update travel time history
-        if self.model.gps_delay > 0:
-            if len(self.tt_history) < self.model.gps_delay - 1:
-                self.tt_history.append(self.travel_time())
-                self.model.G[self.origin][self.destination]['travel_time'] = self.free_flow_time
-            else:
-                self.tt_history.append(self.travel_time())
-                self.model.G[self.origin][self.destination]['travel_time'] = self.tt_history.pop(0)
+        
 
         if len(self.queue) <= 0:
             return
@@ -66,21 +60,42 @@ class RouteAgent(Agent):
             vehicle = self.queue.pop(0)
             vehicle[0].change_road()
 
-        # Update the state of the route
-        if self.volume_to_capacity_ratio() > 1.5:
+       
+
+    # Add a vehicle to the route
+    def add_vehicle(self, vehicle: Vehicle):
+
+        # If there is delay then update travel time history
+        self.update_history()
+        print(self.travel_time(), round(self.travel_time()))
+        self.queue.append([vehicle, round(self.travel_time())])
+        self.update_state()
+
+            
+    # Update the travel time history in case there is delay
+    def update_history(self):
+        if self.model.gps_delay > 0:
+
+            # If the history is not full then set the travel time to free flow time
+            if len(self.tt_history) < self.model.gps_delay:
+                self.model.G[self.origin][self.destination]['travel_time'] = self.free_flow_time
+            else: # else set the travel time to the oldest travel time in the history
+                self.model.G[self.origin][self.destination]['travel_time'] = self.tt_history.pop(0)
+            
+            self.tt_history.append(self.travel_time())
+        else:
+            self.model.G[self.origin][self.destination]['travel_time'] = self.travel_time()
+
+    def update_state(self):
+         # Update the state of the route
+        if self.volume_to_capacity_ratio() >= 1.5:
             self.state = RouteState.HIGHLY_CONGESTED
-        elif self.volume_to_capacity_ratio() > 1.20:
+        elif self.volume_to_capacity_ratio() >= 1.20:
             self.state = RouteState.CONGESTED
-        elif self.volume_to_capacity_ratio() > 1:
+        elif self.volume_to_capacity_ratio() >= 1:
             self.state = RouteState.FULL
         else:
             self.state = RouteState.FREE
-
-    # Add a vehicle to the route
-    def add_vehicle(self, vehicle):
-        self.queue.append([vehicle, self.travel_time()])
-        if self.model.gps_delay == 0:
-            self.model.G[self.origin][self.destination]['travel_time'] = self.travel_time()
 
     # Calculate the travel time of the route with the BPR function
     def travel_time(self):
