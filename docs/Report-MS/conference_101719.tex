@@ -1,0 +1,46 @@
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{multirow}
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\usepackage{balance}
+\begin{document}
+\title{Information Percolation Systems for Traffic Management}
+\author{António Oliveira, Luis Lucas, Marcelo Couto\\M.EIC - FEUP, Porto, Portugal}
+
+\markboth{Modeling and Simulation project, M.EIC - FEUP}%
+{}
+
+\maketitle
+
+\begin{abstract}
+    Traffic management and road network optimization are topics that have gathered quite a lot of attention from the computer science community for the last two decades, due to the relevance of the problems presented and the applicability of the area to find solutions for these problems. One of the main challenges has been the management of congestion, related specifically to route assignment and unbalanced road networks as a consequence of the latter. The work presented in this document evaluates the use of information percolation strategies to influence the route choice of the vehicles through modelling of these strategies and their impact on the development of traffic on multiple road networks. A special focus is put into evaluating the possible influence CAVs could have on this forefront, allowing for more efficient information dissemination. A simple simulation environment is developed, using the BPR function to model the flow of traffic in the network. Three different route choice strategies based on information percolation systems are modelled, including a base case, one using the idea of modern GPS/Location services like Google Maps and another founded upon the concept of Connected Autonomous Vehicles. The results of the study show that the utilisation of 'Google Maps like' applications dramatically improves the throughput of road networks, while CAVs only present a small improvement on top of the one already given by these apps.   
+\end{abstract}
+
+\begin{IEEEkeywords}
+simulation, mesa-simulator, traffic-management, autonomous vehicles, CAV
+\end{IEEEkeywords}
+
+\input{content/introduction}
+\input{content/related-work}
+\input{content/methods-materials}
+\input{content/results-discussion}
+\input{content/conclusion}
+\input{content/appendix}
+
+\bibliographystyle{ieeetr}
+\bibliography{Bib/references}
+
+\newpage
+
+\end{document}

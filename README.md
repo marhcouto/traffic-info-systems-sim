@@ -2,6 +2,12 @@
 
 Simulation environment on MESA simulator to evaluate information percolation systems for traffic congestion avoidance.
 
+## Folder Structure
+
+- docs: presentation slides and paper
+- src: source code
+- test: unit tests
+
 ## Requirements
 
 - Python 3.10 installed.
