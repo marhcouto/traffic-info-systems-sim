@@ -3,21 +3,26 @@ import scenarios.medium_model
 import scenarios.small_model
 from model.network_model import NetworkModel
 
+# This file is used to run multiple scenarios with multiple policies
+
+# List of scenarios to run
 scenarios = [
     ["Small Model", scenarios.small_model, 15],
     ["Medium Model", scenarios.medium_model, 20],
     ["Large Model", scenarios.large_model, 15]
 ]
 
+# List of policies to run
 policies = [
     ["DUMB", 0.0],
     ["HALF_SMART", 0.5],
     ["SMART", 1.0],
 ]
 
-iterations = 500
 
+iterations = 500 # Number of iterations to run each scenario
 
+# Run each scenario with each policy
 for scenario in scenarios:
     print()
     print("SCENARIO: " + str(scenario[0]))

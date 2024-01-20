@@ -4,7 +4,7 @@ import s.scenarios.simple_model1
 import s.scenarios.small_model1
 import s.scenarios.small_model2
 
-
+# Test the Vehicle class
 class TestVehicle:
 
     def test_step(self):

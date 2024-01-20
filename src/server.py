@@ -126,6 +126,6 @@ barchart = BarChartModule(series, canvas_width=100 * len(series), data_collector
 
 server: ModularServer = ModularServer(NetworkModel, [network, barchart, chart1],
                                       "Network Model", smart)
-server.port: int = 8538
+server.port: int = 8539
 server.launch()
 

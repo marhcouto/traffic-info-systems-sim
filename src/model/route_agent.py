@@ -63,6 +63,8 @@ class RouteAgent(Agent):
        
 
     # Add a vehicle to the route
+    # Params:
+    #   vehicle: the vehicle to be added to the route
     def add_vehicle(self, vehicle: Vehicle):
 
         # If there is delay then update travel time history

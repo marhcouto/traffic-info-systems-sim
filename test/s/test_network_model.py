@@ -8,7 +8,9 @@ import s.scenarios.small_model2
 import s.scenarios.medium_model
 from model.route_agent import RouteAgent, RouteState
 
+# Test the NetworkModel class
 class TestNetworkModel:
+    
     @pytest.mark.parametrize(
         ("start_node", "end_node", "nodes", "roads", "expected"),
         [

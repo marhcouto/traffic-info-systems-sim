@@ -64,9 +64,6 @@ class Vehicle(Agent):
             return -1
 
     # Return next route option taking free flow time into account
-    # 
-    # Params:
-    #   node: route start node
     def change_road(self):
         if self.pos == 0:
             node = self.model.start
