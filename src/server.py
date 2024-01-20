@@ -3,6 +3,7 @@ from mesa.visualization.modules import NetworkModule, ChartModule, BarChartModul
 
 import scenarios.large_model
 import scenarios.medium_model
+import scenarios.small_model
 from model.network_model import NetworkModel
 from model.route_agent import RouteState
 
@@ -128,35 +129,3 @@ server: ModularServer = ModularServer(NetworkModel, [network, barchart, chart1],
 server.port: int = 8538
 server.launch()
 
-# model = NetworkModel(**dumb)
-# iterations = 500
-#
-# for i in range(iterations):
-#     model.step()
-#
-# print()
-# print("DUMB:")
-# print(model.avg_travel_time())
-# print(model.avg_max_vc_ratio())
-#
-# model = NetworkModel(**half_smart)
-# iterations = 500
-#
-# for i in range(iterations):
-#     model.step()
-#
-# print()
-# print("HALF SMART:")
-# print(model.avg_travel_time())
-# print(model.avg_max_vc_ratio())
-#
-# model = NetworkModel(**smart)
-# iterations = 500
-#
-# for i in range(iterations):
-#     model.step()
-#
-# print()
-# print("SMART:")
-# print(model.avg_travel_time())
-# print(model.avg_max_vc_ratio())

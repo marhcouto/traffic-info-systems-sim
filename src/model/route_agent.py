@@ -67,7 +67,6 @@ class RouteAgent(Agent):
 
         # If there is delay then update travel time history
         self.update_history()
-        print(self.travel_time(), round(self.travel_time()))
         self.queue.append([vehicle, round(self.travel_time())])
         self.update_state()
 
